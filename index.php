@@ -1,3 +1,33 @@
+<?php 
+// Include functions
+include 'functions.php'; 
+
+// Connect to the database
+$con = mysqli_connect("localhost", "root", "", "dct-ccs-finals");
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+$errorArray = []; // Array for validation messages
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
+    // Retrieve form inputs
+    $email = htmlspecialchars(stripslashes(trim($_POST['email'] ?? '')));
+    $password = $_POST['password'] ?? '';
+
+    // Validate login credentials
+    $errorArray = validateLoginCredentials($email, $password, $con);
+
+    if (empty($errorArray)) {
+        // If no errors, start session and redirect
+        session_start();
+        $_SESSION['email'] = $email;  
+        header("Location: admin/dashboard.php");
+        exit();
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,7 +65,5 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
-    <?php 
-        $con = mysqli_connect("localhost", "root", "", "dct-ccs-finals");
-    ?>
+   
 </html>
