@@ -49,7 +49,7 @@ $conn->close();
 
 <?php include('../partials/header.php'); ?>
 
-<div class="d-flex m-0 p-0">
+<div class="d-flex">
     <!-- Include the sidebar -->
     <?php include '../partials/side-bar.php'; ?>
 
@@ -77,6 +77,7 @@ $conn->close();
 
             <form method="POST">
                 <?php if ($subjectResult->num_rows > 0): ?>
+                    <h6>Select Subjects to Attach:</h6>
                     <?php while ($subject = $subjectResult->fetch_assoc()): ?>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="subjects[]" value="<?= htmlspecialchars($subject['subject_code']) ?>" id="subject-<?= htmlspecialchars($subject['subject_code']) ?>">
@@ -90,9 +91,48 @@ $conn->close();
                     <p class="text-muted">No subjects available to attach.</p>
                 <?php endif; ?>
             </form>
+
+            <!-- Display Attached Subjects Table -->
+            <div class="mt-4">
+                <h6>Attached Subjects</h6>
+                <?php
+                    // Fetch attached subjects if any
+                    $studentId = $student['student_id'];
+                    $attachedSubjectsQuery = "SELECT subjects.subject_code, subjects.subject_name FROM subjects
+                                               JOIN student_subjects ON subjects.subject_code = student_subjects.subject_code
+                                               WHERE student_subjects.student_id = '$studentId'";
+                    $attachedSubjectsResult = $conn->query($attachedSubjectsQuery);
+
+                    if ($attachedSubjectsResult->num_rows > 0):
+                ?>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Option</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($subject = $attachedSubjectsResult->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($subject['subject_code']) ?></td>
+                                    <td><?= htmlspecialchars($subject['subject_name']) ?></td>
+                                    <td>
+                                        <a href="detach.php?subject_code=<?= htmlspecialchars($subject['subject_code']) ?>&student_id=<?= htmlspecialchars($student['student_id']) ?>" class="btn btn-sm btn-danger">Detach</a>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <p>No subjects attached to this student yet.</p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
+
 
 
 <?php include('../partials/footer.php'); ?>
