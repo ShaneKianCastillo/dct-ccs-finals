@@ -11,6 +11,22 @@
     
         return $users;
     }
+
+    function connectDatabase(): mysqli {
+        $servername = 'localhost';
+        $username = 'root';        
+        $password = "";            
+        $dbname = 'dct-ccs-finals'; 
+    
+        $conn = new mysqli($servername, $username, $password, $dbname);
+    
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+    
+        return $conn;
+    }
+    
     
     function validateLoginCredentials($email, $password, $connection) {
         $errorArray = [];
@@ -123,6 +139,92 @@
             $errorArray['subject_name'] = 'Subject name is required!';
         }
         return $errorArray;
+    }
+    
+    //for students
+    function validateStudentData($student_data) {
+        $errorArray = [];
+    
+        if (empty($student_data['ID'])) {
+            $errorArray['ID'] = 'Student ID is required!';
+        }
+    
+        if (empty($student_data['first_name'])) {
+            $errorArray['first_name'] = 'First name is required!';
+        }
+    
+        if (empty($student_data['last_name'])) {
+            $errorArray['last_name'] = 'Last name is required!';
+        }
+    
+        return $errorArray;
+    }
+
+    function checkDuplicateStudentData($student_data) {
+        $errors = [];
+        
+        // Database connection
+        $conn = new mysqli("localhost", "root", "", "dct_ccs_finals");
+        
+        // Check for existing student by ID
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM students WHERE student_id = ?");
+        $stmt->bind_param("s", $student_data['ID']);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        
+        if ($count > 0) {
+            $errors[] = "A student with this ID already exists.";
+        }
+    
+        // Close connection
+        $stmt->close();
+        $conn->close();
+        
+        return $errors;
+    }
+
+    function getSelectedStudentIndex($studentID) {
+        // Database connection
+        $conn = new mysqli("localhost", "root", "", "dct_ccs_finals");
+        
+        // Query to find student ID
+        $stmt = $conn->prepare("SELECT id FROM students WHERE student_id = ?");
+        $stmt->bind_param("s", $studentID);
+        $stmt->execute();
+        $stmt->bind_result($studentIndex);
+        $stmt->fetch();
+    
+        // Close connection
+        $stmt->close();
+        $conn->close();
+    
+        return $studentIndex ?? null;
+    }
+
+    function getSelectedStudentData($studentID) {
+        // Database connection
+        $conn = new mysqli("localhost", "root", "", "dct_ccs_finals");
+    
+        // Query to retrieve student data
+        $stmt = $conn->prepare("SELECT * FROM students WHERE student_id = ?");
+        $stmt->bind_param("s", $studentID);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    
+        // Fetch student data
+        if ($student = $result->fetch_assoc()) {
+            // Close connection
+            $stmt->close();
+            $conn->close();
+            return $student;
+        }
+    
+        // Close connection
+        $stmt->close();
+        $conn->close();
+    
+        return null;
     }
     
     
