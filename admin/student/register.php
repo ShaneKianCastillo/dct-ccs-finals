@@ -99,7 +99,7 @@
                                         <td>
                                             <a href='edit.php?id={$row['id']}' class='btn btn-sm btn-info'>Edit</a>
                                             <a href='delete.php?id={$row['id']}' class='btn btn-sm btn-danger'>Delete</a>
-                                            <button class='btn btn-sm btn-warning delete-btn' data-id='{$row['id']}'>Attach Subject</button>
+                                            <a href='attach-subject.php?student_id={$row['student_id']}' class='btn btn-sm btn-warning'>Attach Subject</a>
                                         </td>
                                       </tr>";
                             }
