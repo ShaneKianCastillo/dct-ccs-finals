@@ -145,8 +145,10 @@
     function validateStudentData($student_data) {
         $errorArray = [];
     
-        if (empty($student_data['ID'])) {
+        if (empty($student_data['ID'])) { // Assuming key is 'ID'
             $errorArray['ID'] = 'Student ID is required!';
+        } elseif (!is_numeric($student_data['ID'])) {
+            $errorArray['ID'] = 'Student ID must be numeric!';
         }
     
         if (empty($student_data['first_name'])) {
@@ -159,20 +161,25 @@
     
         return $errorArray;
     }
+    
 
     function checkDuplicateStudentData($student_data) {
         $errors = [];
-        
+    
         // Database connection
         $conn = new mysqli("localhost", "root", "", "dct_ccs_finals");
-        
+    
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+    
         // Check for existing student by ID
         $stmt = $conn->prepare("SELECT COUNT(*) FROM students WHERE student_id = ?");
         $stmt->bind_param("s", $student_data['ID']);
         $stmt->execute();
         $stmt->bind_result($count);
         $stmt->fetch();
-        
+    
         if ($count > 0) {
             $errors[] = "A student with this ID already exists.";
         }
@@ -180,52 +187,141 @@
         // Close connection
         $stmt->close();
         $conn->close();
-        
+    
         return $errors;
     }
-
+    
     function getSelectedStudentIndex($studentID) {
+        if (empty($studentID)) {
+            return null;
+        }
+    
         // Database connection
         $conn = new mysqli("localhost", "root", "", "dct_ccs_finals");
-        
+    
+        if ($conn->connect_error) {
+            die("Database connection failed: " . $conn->connect_error);
+        }
+    
         // Query to find student ID
         $stmt = $conn->prepare("SELECT id FROM students WHERE student_id = ?");
+        if (!$stmt) {
+            die("Failed to prepare statement: " . $conn->error);
+        }
+    
         $stmt->bind_param("s", $studentID);
         $stmt->execute();
         $stmt->bind_result($studentIndex);
         $stmt->fetch();
     
-        // Close connection
+        // Clean up
         $stmt->close();
         $conn->close();
     
-        return $studentIndex ?? null;
+        return $studentIndex ?: null;
     }
-
-    function getSelectedStudentData($studentID) {
-        // Database connection
-        $conn = new mysqli("localhost", "root", "", "dct_ccs_finals");
     
-        // Query to retrieve student data
-        $stmt = $conn->prepare("SELECT * FROM students WHERE student_id = ?");
-        $stmt->bind_param("s", $studentID);
+    
+
+    function getSelectedStudentData($student_id) {
+        $connection = connectDatabase();
+        $query = "SELECT * FROM students WHERE id = ?";
+        $stmt = $connection->prepare($query);
+        $stmt->bind_param('i', $student_id);
         $stmt->execute();
         $result = $stmt->get_result();
+        $student = $result->fetch_assoc();
+        $stmt->close();
+        $connection->close();
     
-        // Fetch student data
-        if ($student = $result->fetch_assoc()) {
-            // Close connection
-            $stmt->close();
-            $conn->close();
-            return $student;
+        return $student;
+    }
+
+    function verifyStudentData($data) {
+        $validation_errors = [];
+        if (empty($data['id_number'])) {
+            $validation_errors[] = "Student ID is required.";
+        }
+        if (empty($data['first_name'])) {
+            $validation_errors[] = "First Name is required.";
+        }
+        if (empty($data['last_name'])) {
+            $validation_errors[] = "Last Name is required.";
         }
     
-        // Close connection
-        $stmt->close();
-        $conn->close();
-    
-        return null;
+        return $validation_errors;
     }
+    
+    function isStudentIdDuplicate($data) {
+        $db = connectDatabase();
+        $sql = "SELECT * FROM students WHERE student_id = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('s', $data['id_number']);
+        $stmt->execute();
+        $res = $stmt->get_result();
+    
+        if ($res->num_rows > 0) {
+            return "This Student ID is already taken.";
+        }
+    
+        return '';
+    }
+    
+    function createUniqueStudentId() {
+        $db = connectDatabase();
+        $query = "SELECT MAX(id) AS current_max FROM students";
+        $result = $db->query($query);
+        $data = $result->fetch_assoc();
+        $db->close();
+    
+        return ($data['current_max'] ?? 0) + 1;
+    }
+    
+    function sanitizeStudentId($id) {
+        return substr($id, 0, 4);
+    }
+    
+    function fetchStudentDetails($id) {
+        $db = connectDatabase();
+        $sql = "SELECT * FROM students WHERE id = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $details = $result->fetch_assoc();
+    
+        $stmt->close();
+        $db->close();
+    
+        return $details;
+    }
+
+    function displayAlert($messages, $alertType = 'danger') {
+        // Return an empty string if there are no messages
+        if (!$messages) {
+            return '';
+        }
+    
+        // Convert single message to an array for consistent handling
+        $messages = (array) $messages;
+    
+        // Build the alert box HTML
+        $alertHTML = '<div class="alert alert-' . htmlspecialchars($alertType) . ' alert-dismissible fade show" role="alert">';
+        $alertHTML .= '<ul>';
+        foreach ($messages as $message) {
+            $alertHTML .= '<li>' . htmlspecialchars($message) . '</li>';
+        }
+        $alertHTML .= '</ul>';
+        $alertHTML .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        $alertHTML .= '</div>';
+    
+        return $alertHTML;
+    }
+    
+    
+    
+    
+    
     
     
 ?>
