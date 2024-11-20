@@ -87,7 +87,8 @@
                     <tbody>
                         <?php
                             $conn = connectDatabase();
-                            $query = "SELECT * FROM students ORDER BY id DESC";
+                            // Change the order to ascending (oldest first, newest last)
+                            $query = "SELECT * FROM students ORDER BY id ASC"; 
                             $result = $conn->query($query);
 
                             while ($row = $result->fetch_assoc()) {
