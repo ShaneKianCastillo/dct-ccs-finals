@@ -60,7 +60,7 @@ $pageTitle = "Delete Subject";
 include('../partials/header.php');
 ?>
 
-<div class="d-flex">
+<div class="d-flex m-0 p-0">
     <!-- Include the sidebar -->
     <?php include '../partials/side-bar.php'; ?>
 
