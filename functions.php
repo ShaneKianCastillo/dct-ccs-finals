@@ -26,29 +26,48 @@
     
         return $conn;
     }
-    
-    
-    function validateLoginCredentials($email, $password, $connection) {
-        $errorArray = [];
-    
-        if (empty($email)) {
-            $errorArray['email'] = 'Email Address is required!';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errorArray['email'] = 'Email Address is invalid!';
-        }
-    
-        if (empty($password)) {
-            $errorArray['password'] = 'Password is required!';
-        }
-    
-        if (empty($errorArray)) {
-            if (!checkLoginCredentials($email, $password, $connection)) {
-                $errorArray['credentials'] = 'Incorrect email or password!';
-            }
-        }
-    
-        return $errorArray;
+
+    //For User Validations
+    function authenticateUser($email, $password)
+{
+    $conn = connectDatabase();
+    $hashedPassword = md5($password); // Use MD5 as per your project requirement
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
+    $stmt->bind_param("ss", $email, $hashedPassword);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    return $result->num_rows > 0 ? $result->fetch_assoc() : null;
+}
+
+/**
+ * Log in the user by storing their data in the session.
+ */
+function loginUser($user)
+{
+    $_SESSION['loggedin'] = true;
+    $_SESSION['user'] = $user;
+}
+
+/**
+ * Display error messages for login.
+ */
+function displayErrors($errors)
+{
+    if (empty($errors)) {
+        return '';
     }
+
+    $output = '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+    $output .= '<strong>Errors:</strong> Please address the following issues:<hr><ul>';
+    foreach ($errors as $error) {
+        $output .= '<li>' . htmlspecialchars($error) . '</li>';
+    }
+    $output .= '</ul><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+    return $output;
+}
+    
 
     function checkLoginCredentials($email, $password, $connection) {
         $query = "SELECT password FROM users WHERE email = ?";
@@ -84,25 +103,7 @@
     
         return $output;
     }
-    function displayErrors($errors) {
-        if (empty($errors)) {
-            return ''; 
-        }
-    
-        $output = '
-        <div class="alert alert-danger alert-dismissible fade show mx-auto my-5" style="margin-bottom: 20px;" role="alert">
-            <strong>System Errors:</strong> Please correct the following errors.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            <hr>
-            <ul>';
-    
-        foreach ($errors as $error) {
-            $output .= '<li>' . htmlspecialchars($error) . '</li>';
-        }
-        $output .= '</ul></div>';
-    
-        return $output;
-    }
+   
 
     //for subject
     function checkDuplicateSubjectData($conn, $subject_data) {
