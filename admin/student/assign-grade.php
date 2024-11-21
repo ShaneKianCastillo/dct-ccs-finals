@@ -1,7 +1,7 @@
 <?php
 session_start();
 ob_start();
-$title = "Assign Grade";
+$titlePage = "Assign Grade";
 require_once '../partials/header.php';
 require_once '../partials/side-bar.php';
 require_once '../../functions.php';

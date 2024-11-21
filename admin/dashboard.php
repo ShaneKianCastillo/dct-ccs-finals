@@ -1,5 +1,6 @@
 <!-- Template Files here -->
  <?php 
+    $titlePage = 'Dashboard';
     include 'partials/header.php'; 
     include 'partials/side-bar.php'; 
     include '../functions.php';

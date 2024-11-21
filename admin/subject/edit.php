@@ -1,4 +1,5 @@
 <?php
+$titlePage = 'Edit a Subject';
 include '../../functions.php';
 
 
@@ -59,7 +60,7 @@ if (isset($_POST['updateSubject'])) {
 // Close the database connection
 $conn->close();
 
-$pageTitle = "Edit Subject";
+
 include('../partials/header.php');
 ?>
 

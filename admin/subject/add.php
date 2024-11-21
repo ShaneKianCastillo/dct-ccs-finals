@@ -1,4 +1,5 @@
 <?php 
+$titlePage = 'Add a Subject';
 session_start();
 include '../partials/header.php';
 include '../../functions.php';
