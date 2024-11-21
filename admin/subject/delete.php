@@ -1,4 +1,5 @@
 <?php
+$titlePage = 'Delete a Subject';
 include '../../functions.php';
 session_start(); // Ensure session is started
 
@@ -56,7 +57,6 @@ $conn->close();
 ?>
 
 <?php
-$pageTitle = "Delete Subject";
 include('../partials/header.php');
 ?>
 

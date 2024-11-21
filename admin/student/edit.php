@@ -1,4 +1,5 @@
 <?php
+$titlePage = 'Edit Student';
 include '../../functions.php';
 
 // Establish a database connection
@@ -68,7 +69,7 @@ if (isset($_POST['updateStudent'])) {
 // Close the database connection
 $conn->close();
 
-$pageTitle = "Edit Student";
+
 include('../partials/header.php');
 ?>
 

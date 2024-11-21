@@ -1,5 +1,5 @@
 <?php
-$page_title = "Add New Student"; // Page title
+$titlePage = "Add New Student"; // Page title
 include_once '../partials/header.php';
 include_once '../partials/side-bar.php';
 include_once '../../functions.php';

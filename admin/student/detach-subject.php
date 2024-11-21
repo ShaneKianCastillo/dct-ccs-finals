@@ -3,7 +3,7 @@ session_start();
 ob_start(); // Start output buffering to prevent "headers already sent" issues
 
 
-$title = "Detach a Subject";
+$titlePage = "Detach a Subject";
 require_once '../partials/header.php';
 
 require_once '../partials/side-bar.php';
