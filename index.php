@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         if ($user) {
             // Successful authentication
             loginUser($user); // Store user info in session
-            header("Location: dashboard.php");
+            header("Location: admin/dashboard.php");
             exit();
         } else {
             // Authentication failed

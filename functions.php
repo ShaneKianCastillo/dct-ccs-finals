@@ -27,6 +27,60 @@
         return $conn;
     }
 
+    function fetchTotalSub($db) {
+        $query = "SELECT COUNT(*) AS total_students FROM students";
+    $result = $db->query($query);
+
+    if ($result) {
+        $row = $result->fetch_assoc();
+        return (int) $row['total_students'];
+    } else {
+        return 0; 
+    }
+    }
+
+    function fetchTotalStud($db){
+        $query = "SELECT COUNT(*) AS total_students FROM students";
+    $result = $db->query($query);
+
+    if ($result) {
+        $row = $result->fetch_assoc();
+        return (int) $row['total_students'];
+    } else {
+        return 0;
+    }
+}
+
+    function fetchPassedStud ($conn) {
+        $query = "
+        SELECT COUNT(*) AS passed_count
+        FROM (
+            SELECT student_id, AVG(grade) AS avg_grade
+            FROM students_subjects
+            WHERE grade IS NOT NULL
+            GROUP BY student_id
+            HAVING avg_grade >= 75
+        ) AS passed_students";
+    $result = $conn->query($query);
+    return $result->fetch_assoc()['passed_count'] ?? 0;
+    }
+
+    function fetchFailedStud($conn) {
+        $query = "
+        SELECT COUNT(*) AS failed_count
+        FROM (
+            SELECT student_id, AVG(grade) AS avg_grade
+            FROM students_subjects
+            WHERE grade IS NOT NULL
+            GROUP BY student_id
+            HAVING avg_grade < 75
+        ) AS failed_students";
+    $result = $conn->query($query);
+    return $result->fetch_assoc()['failed_count'] ?? 0;
+    }
+
+
+
     //For User Validations
     function authenticateUser($email, $password)
 {
@@ -41,18 +95,15 @@
     return $result->num_rows > 0 ? $result->fetch_assoc() : null;
 }
 
-/**
- * Log in the user by storing their data in the session.
- */
+
+
 function loginUser($user)
 {
     $_SESSION['loggedin'] = true;
     $_SESSION['user'] = $user;
 }
 
-/**
- * Display error messages for login.
- */
+
 function displayErrors($errors)
 {
     if (empty($errors)) {
